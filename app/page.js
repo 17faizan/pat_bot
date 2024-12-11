@@ -2,6 +2,22 @@
 import { Box, Button, Stack, TextField } from "@mui/material";
 import Link from "next/link";  // Import Link
 import { useState } from "react";
+import { marked } from 'marked';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+// Configure marked to use custom renderer for code blocks
+marked.setOptions({
+  renderer: new marked.Renderer(),
+  highlight: function(code, lang) {
+    return SyntaxHighlighter.highlight(code, {
+      language: lang,
+      style: atomDark
+    });
+  },
+  breaks: true,
+  gfm: true
+});
 
 export default function Home() {
   const [messages, setMessages] = useState([
@@ -52,6 +68,17 @@ export default function Home() {
     })
   }
 
+  const renderMessage = (content) => {
+    return (
+      <div 
+        dangerouslySetInnerHTML={{ 
+          __html: marked(content, { breaks: true }) 
+        }}
+        className="markdown-content"
+      />
+    );
+  };
+
   return (
   <Box 
     width ="100vw"
@@ -93,15 +120,41 @@ export default function Home() {
               color="white"
               borderRadius={16}
               p={3}
+              sx={{
+                maxWidth: '80%',
+                '& pre': {
+                  background: '#2e3133 !important',
+                  borderRadius: '4px',
+                  padding: '12px',
+                  overflowX: 'auto',
+                },
+                '& code': {
+                  fontFamily: 'monospace',
+                  backgroundColor: '#2e3133',
+                  padding: '2px 4px',
+                  borderRadius: '3px',
+                },
+                '& h3': {
+                  marginTop: '16px',
+                  marginBottom: '8px',
+                },
+                '& p': {
+                  margin: '8px 0',
+                },
+                '& ul, & ol': {
+                  paddingLeft: '20px',
+                  margin: '8px 0',
+                },
+              }}
             >
-              {message.content}
+              {renderMessage(message.content)}
             </Box>
             </Box>
         ))}
       </Stack>
       <Stack direction="row" spacing={2}>
         <TextField 
-          label="Ask Alli anything!"
+          label="Ask Pat anything!"
           fullWidth 
           value={message} 
           onChange={(e) => setMessage(e.target.value)} //message text field background #2e3133
